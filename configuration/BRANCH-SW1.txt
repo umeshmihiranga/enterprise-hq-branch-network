@@ -1,0 +1,80 @@
+============================================================
+BRANCH-SW1
+Enterprise HQ–Branch Network
+Cisco Catalyst 2960
+Branch Access Switch
+============================================================
+
+!
+! =========================
+! BASIC CONFIGURATION
+! =========================
+!
+
+hostname BRANCH-SW1
+no ip domain-lookup
+
+!
+! =========================
+! VLAN DATABASE
+! =========================
+!
+
+vlan 100
+ name BRANCH-USERS
+
+vlan 999
+ name NATIVE-BLACKHOLE
+
+!
+! =========================
+! BRANCH-PC1
+! =========================
+!
+
+interface FastEthernet0/1
+ description BRANCH-PC1
+ switchport mode access
+ switchport access vlan 100
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+!
+! =========================
+! UNUSED PORTS
+! =========================
+!
+
+interface range FastEthernet0/2 - 23
+ description UNUSED_PORT
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+
+!
+! =========================
+! TRUNK TO R2-BRANCH
+! =========================
+!
+
+interface FastEthernet0/24
+ description TRUNK_TO_R2-BRANCH
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 100
+ no shutdown
+
+!
+! =========================
+! RAPID-PVST+
+! =========================
+!
+
+spanning-tree mode rapid-pvst
+
+!
+! =========================
+! END
+! =========================
+!

@@ -1,0 +1,150 @@
+============================================================
+ACCESS-SW1
+Enterprise HQ–Branch Network
+Cisco Catalyst 2960
+User Access Switch
+============================================================
+
+!
+! =========================
+! BASIC CONFIGURATION
+! =========================
+!
+
+hostname ACCESS-SW1
+no ip domain-lookup
+
+!
+! =========================
+! VLAN DATABASE
+! =========================
+!
+
+vlan 10
+ name SALES
+
+vlan 20
+ name IT
+
+vlan 30
+ name SERVERS
+
+vlan 40
+ name GUEST
+
+vlan 50
+ name VOICE
+
+vlan 99
+ name MANAGEMENT
+
+vlan 999
+ name NATIVE-BLACKHOLE
+
+!
+! =========================
+! SALES-PC1
+! =========================
+!
+
+interface FastEthernet0/1
+ description SALES-PC1
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+!
+! =========================
+! SALES-PC2
+! =========================
+!
+
+interface FastEthernet0/2
+ description SALES-PC2
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+!
+! =========================
+! IT-PC1
+! =========================
+!
+
+interface FastEthernet0/3
+ description IT-PC1
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+!
+! =========================
+! IT-PC2
+! =========================
+!
+
+interface FastEthernet0/4
+ description IT-PC2
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+!
+! =========================
+! UNUSED PORTS
+! =========================
+!
+
+interface range FastEthernet0/5 - 22
+ description UNUSED_PORT
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+
+!
+! =========================
+! UPLINK TO CORE-SW2
+! =========================
+!
+
+interface FastEthernet0/23
+ description TRUNK_TO_CORE-SW2
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+ no shutdown
+
+!
+! =========================
+! UPLINK TO CORE-SW1
+! =========================
+!
+
+interface FastEthernet0/24
+ description TRUNK_TO_CORE-SW1
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+ no shutdown
+
+!
+! =========================
+! RAPID-PVST+
+! =========================
+!
+
+spanning-tree mode rapid-pvst
+
+!
+! =========================
+! END
+! =========================
+!

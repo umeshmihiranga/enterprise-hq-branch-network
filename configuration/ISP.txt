@@ -1,0 +1,44 @@
+============================================================
+ISP
+Enterprise HQ–Branch Network
+Cisco 2911
+Simulated Internet Provider
+============================================================
+
+!
+! =========================
+! BASIC CONFIGURATION
+! =========================
+!
+
+hostname ISP
+no ip domain-lookup
+
+!
+! =========================
+! CONNECTION TO R1-HQ
+! =========================
+!
+
+interface GigabitEthernet0/0
+ description WAN_TO_R1-HQ
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+
+!
+! =========================
+! SIMULATED INTERNET
+! =========================
+!
+! Loopback0 represents an external Internet destination.
+!
+
+interface Loopback0
+ description SIMULATED_INTERNET
+ ip address 8.8.8.8 255.255.255.255
+
+!
+! =========================
+! END
+! =========================
+!

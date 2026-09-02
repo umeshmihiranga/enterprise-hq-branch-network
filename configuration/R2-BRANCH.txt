@@ -1,0 +1,73 @@
+============================================================
+R2-BRANCH
+Enterprise HQ–Branch Network
+Cisco 2911
+Branch Router
+============================================================
+
+!
+! =========================
+! BASIC CONFIGURATION
+! =========================
+!
+
+hostname R2-BRANCH
+no ip domain-lookup
+
+!
+! =========================
+! BRANCH LAN
+! ROUTER-ON-A-STICK
+! =========================
+!
+
+interface GigabitEthernet0/0
+ description TRUNK_TO_BRANCH-SW1
+ no ip address
+ no shutdown
+
+!
+! =========================
+! VLAN 100 - BRANCH USERS
+! =========================
+!
+
+interface GigabitEthernet0/0.100
+ description BRANCH_USERS_GATEWAY
+ encapsulation dot1Q 100
+ ip address 192.168.100.1 255.255.255.0
+ ip helper-address 192.168.30.10
+
+!
+! =========================
+! WAN TO R1-HQ
+! =========================
+!
+
+interface Serial0/0/0
+ description WAN_TO_R1-HQ
+ ip address 10.0.0.2 255.255.255.252
+ clock rate 64000
+ no shutdown
+
+!
+! =========================
+! OSPF
+! =========================
+!
+
+router ospf 10
+ router-id 4.4.4.4
+ log-adjacency-changes
+
+ passive-interface default
+ no passive-interface Serial0/0/0
+
+ network 10.0.0.0 0.0.0.3 area 0
+ network 192.168.100.0 0.0.0.255 area 0
+
+!
+! =========================
+! END
+! =========================
+!

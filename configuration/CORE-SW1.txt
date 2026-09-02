@@ -1,0 +1,249 @@
+============================================================
+CORE-SW1
+Enterprise HQ–Branch Network
+Cisco Catalyst 3560-24PS
+Primary Multilayer Core / Distribution Switch
+============================================================
+
+!
+! =========================
+! BASIC CONFIGURATION
+! =========================
+!
+
+hostname CORE-SW1
+no ip domain-lookup
+ip routing
+
+!
+! =========================
+! VLAN DATABASE
+! =========================
+!
+
+vlan 10
+ name SALES
+
+vlan 20
+ name IT
+
+vlan 30
+ name SERVERS
+
+vlan 40
+ name GUEST
+
+vlan 50
+ name VOICE
+
+vlan 99
+ name MANAGEMENT
+
+vlan 999
+ name NATIVE-BLACKHOLE
+
+!
+! =========================
+! VLAN 10 - SALES
+! =========================
+!
+
+interface Vlan10
+ description HSRP_GATEWAY_SALES
+ ip address 192.168.10.2 255.255.255.0
+ ip helper-address 192.168.30.10
+
+ standby 10 ip 192.168.10.1
+ standby 10 priority 110
+ standby 10 preempt
+
+ no shutdown
+
+!
+! =========================
+! VLAN 20 - IT
+! =========================
+!
+
+interface Vlan20
+ description HSRP_GATEWAY_IT
+ ip address 192.168.20.2 255.255.255.0
+ ip helper-address 192.168.30.10
+
+ standby 20 ip 192.168.20.1
+ standby 20 priority 110
+ standby 20 preempt
+
+ no shutdown
+
+!
+! =========================
+! VLAN 30 - SERVERS
+! =========================
+!
+
+interface Vlan30
+ description HSRP_GATEWAY_SERVERS
+ ip address 192.168.30.2 255.255.255.0
+
+ standby 30 ip 192.168.30.1
+ standby 30 priority 110
+ standby 30 preempt
+
+ no shutdown
+
+!
+! =========================
+! VLAN 40 - GUEST
+! =========================
+!
+
+interface Vlan40
+ description HSRP_GATEWAY_GUEST
+ ip address 192.168.40.2 255.255.255.0
+ ip helper-address 192.168.30.10
+
+ standby 40 ip 192.168.40.1
+ standby 40 priority 110
+ standby 40 preempt
+
+ no shutdown
+
+!
+! =========================
+! VLAN 50 - VOICE
+! =========================
+!
+
+interface Vlan50
+ description HSRP_GATEWAY_VOICE
+ ip address 192.168.50.2 255.255.255.0
+
+ standby 50 ip 192.168.50.1
+ standby 50 priority 110
+ standby 50 preempt
+
+ no shutdown
+
+!
+! =========================
+! VLAN 99 - MANAGEMENT
+! =========================
+!
+
+interface Vlan99
+ description HSRP_GATEWAY_MANAGEMENT
+ ip address 192.168.99.2 255.255.255.0
+
+ standby 99 ip 192.168.99.1
+ standby 99 priority 110
+ standby 99 preempt
+
+ no shutdown
+
+!
+! =========================
+! L3 TRANSIT TO R1-HQ
+! =========================
+!
+
+interface GigabitEthernet0/1
+ description TRANSIT_TO_R1-HQ
+ no switchport
+ ip address 10.0.1.2 255.255.255.252
+ no shutdown
+
+!
+! =========================
+! CORE INTERCONNECT
+! LACP ETHERCHANNEL
+! =========================
+!
+
+interface range FastEthernet0/23 - 24
+ description CORE_INTERCONNECT_MEMBER
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+ channel-group 1 mode active
+ no shutdown
+
+!
+! =========================
+! PORT-CHANNEL 1
+! =========================
+!
+
+interface Port-channel1
+ description CORE_INTERCONNECT_LACP
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+
+!
+! =========================
+! UPLINK TO ACCESS-SW1
+! =========================
+!
+
+interface FastEthernet0/1
+ description TRUNK_TO_ACCESS-SW1
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+ no shutdown
+
+!
+! =========================
+! UPLINK TO ACCESS-SW2
+! =========================
+!
+
+interface FastEthernet0/2
+ description TRUNK_TO_ACCESS-SW2
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,40,50,99
+ no shutdown
+
+!
+! =========================
+! RAPID-PVST+
+! =========================
+!
+
+spanning-tree mode rapid-pvst
+
+!
+! CORE-SW1 = PRIMARY STP ROOT
+!
+
+spanning-tree vlan 10,20,30,40,50,99 root primary
+
+!
+! =========================
+! OSPF
+! =========================
+!
+
+router ospf 10
+ router-id 2.2.2.2
+ log-adjacency-changes
+
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+
+ network 10.0.1.0 0.0.0.3 area 0
+
+ network 192.168.10.0 0.0.0.255 area 0
+ network 192.168.20.0 0.0.0.255 area 0
+ network 192.168.30.0 0.0.0.255 area 0
+ network 192.168.40.0 0.0.0.255 area 0
+ network 192.168.50.0 0.0.0.255 area 0
+ network 192.168.99.0 0.0.0.255 area 0
+
+!
+! =========================
+! END
+! =========================
+!

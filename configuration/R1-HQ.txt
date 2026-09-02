@@ -1,0 +1,90 @@
+============================================================
+R1-HQ
+Enterprise HQ–Branch Network
+Cisco 2911
+============================================================
+
+hostname R1-HQ
+no ip domain-lookup
+
+!
+! =========================
+! WAN TO ISP
+! =========================
+!
+interface GigabitEthernet0/0
+ description WAN_TO_ISP
+ ip address 203.0.113.2 255.255.255.252
+ ip nat outside
+ no shutdown
+
+!
+! =========================
+! TRANSIT TO CORE-SW1
+! =========================
+!
+interface GigabitEthernet0/1
+ description TRANSIT_TO_CORE-SW1
+ ip address 10.0.1.1 255.255.255.252
+ ip nat inside
+ no shutdown
+
+!
+! =========================
+! TRANSIT TO CORE-SW2
+! =========================
+!
+interface GigabitEthernet0/2
+ description TRANSIT_TO_CORE-SW2
+ ip address 10.0.1.5 255.255.255.252
+ ip nat inside
+ no shutdown
+
+!
+! =========================
+! WAN TO BRANCH
+! =========================
+!
+interface Serial0/0/0
+ description WAN_TO_BRANCH_R2
+ ip address 10.0.0.1 255.255.255.252
+ ip nat inside
+ no shutdown
+
+!
+! =========================
+! DEFAULT ROUTE TO ISP
+! =========================
+!
+ip route 0.0.0.0 0.0.0.0 203.0.113.1
+
+!
+! =========================
+! NAT/PAT
+! =========================
+!
+access-list 1 permit 192.168.0.0 0.0.255.255
+
+ip nat inside source list 1 interface GigabitEthernet0/0 overload
+
+!
+! =========================
+! OSPF
+! =========================
+!
+router ospf 10
+ router-id 1.1.1.1
+ log-adjacency-changes
+ passive-interface GigabitEthernet0/0
+
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.1.0 0.0.0.3 area 0
+ network 10.0.1.4 0.0.0.3 area 0
+
+ default-information originate
+
+!
+! =========================
+! END
+! =========================
+!
